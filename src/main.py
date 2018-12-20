@@ -35,14 +35,14 @@ GP46 = 32
 GP48 = 33
 GPIO_LIST = [GP44, GP46, GP48]
 # initialise gpio
-gpio = []
-for i in GPIO_LIST:
-    gpio.append(mraa.Gpio(i))
+gpio_list = []
+for GPIO in GPIO_LIST:
+    gpio = mraa.Gpio(GPIO)
+    gpio_list.append(gpio)
 
 # set gpio GP44 to output
-gpio[0].dir(mraa.DIR_OUT)
-gpio[1].dir(mraa.DIR_OUT)
-gpio[2].dir(mraa.DIR_OUT)
+for i in range(2):
+    gpio_list[i].dir(mraa.DIR_OUT)
 
 
 markup_main = ReplyKeyboardMarkup([['Abrir Porton','Cerrar Porton'],
@@ -67,9 +67,9 @@ def main_menu(bot, update, user_data):
         update.message.reply_text("Cual desea cerrar?", reply_markup=markup_choose)
         return CLOSE
     elif (text == "Timbre"):
-        gpio[0].write(1)
+        gpio_list[0].write(1)
         time.sleep(0.5)
-        gpio[0].write(1)
+        gpio_list[0].write(0)
         update.message.reply_text("Tocando el timbre..", reply_markup=markup_main)
         return MAIN
     else:
@@ -81,13 +81,13 @@ def main_menu(bot, update, user_data):
 def open_gate(bot, update, user_data):
     text = update.message.text
     if(text == "Cancelar"):
-        update.message.reply_text("Que desea hacer? "+ text,
+        update.message.reply_text("Que desea hacer? ",
         reply_markup=markup_main)
     else:
         update.message.reply_text("Abriendo porton "+ text)
-        gpio[int(text)].write(1)
+        gpio_list[int(text)].write(1)
         time.sleep(0.5)
-        gpio[int(text)].write(1)
+        gpio_list[int(text)].write(1)
         update.message.reply_text("Porton "+ text+ " abierto!",
         reply_markup=markup_main)
     return MAIN
@@ -95,13 +95,13 @@ def open_gate(bot, update, user_data):
 def close_gate(bot, update, user_data):
     text = update.message.text
     if(text == "Cancelar"):
-        update.message.reply_text("Que desea hacer? "+ text,
+        update.message.reply_text("Que desea hacer? ",
         reply_markup=markup_main)
     else:
         update.message.reply_text("Cerrando porton "+ text)
-        gpio[int(text)].write(1)
+        gpio_list[int(text)].write(1)
         time.sleep(0.5)
-        gpio[int(text)].write(0)
+        gpio_list[int(text)].write(0)
         update.message.reply_text("Porton "+ text+ " cerrado!",
         reply_markup=markup_main)
     return MAIN
