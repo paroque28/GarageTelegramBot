@@ -20,6 +20,8 @@ from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, Rege
                           ConversationHandler)
 import os
 import logging
+import mraa
+import time
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -28,7 +30,13 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 NUM_GATES = 2
 MAIN, OPEN, CLOSE, SET, END = range(5)
+GP44 = 31
 
+# initialise gpio GP44
+gpio_1 = mraa.Gpio(GP44)
+
+# set gpio GP44 to output
+gpio_1.dir(mraa.DIR_OUT)
 
 
 markup_main = ReplyKeyboardMarkup([['Abrir Porton','Cerrar Porton'],
@@ -65,6 +73,9 @@ def open_gate(bot, update, user_data):
     text = update.message.text
     update.message.reply_text("Abriendo porton "+ text,
         reply_markup=markup_main)
+    gpio_1.write(1)
+    time.sleep(0.5)
+    gpio_1.write(0)
     return MAIN
 
 def close_gate(bot, update, user_data):
