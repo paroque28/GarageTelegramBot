@@ -30,6 +30,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 NUM_GATES = 2
 MAIN, OPEN, CLOSE, SET, END = range(5)
+DELAY = 0.7
 GP44 = 31
 GP46 = 32
 GP48 = 33
@@ -40,15 +41,16 @@ for GPIO in GPIO_LIST:
     gpio = mraa.Gpio(GPIO)
     gpio_list.append(gpio)
 
-# set gpio GP44 to output
-for i in range(2):
+# set gpio to output
+for i in range(3):
     gpio_list[i].dir(mraa.DIR_OUT)
+    gpio_list[i].write(0)
 
 
 markup_main = ReplyKeyboardMarkup([['Abrir Porton','Cerrar Porton'],
                   ['Timbre','Estado de los Portones'],
                   ['Ultimas 5 Acciones']], one_time_keyboard=True)
-markup_choose = ReplyKeyboardMarkup([map(str, range(1,NUM_GATES+1)),["Cancelar"]], one_time_keyboard=True)
+markup_choose = ReplyKeyboardMarkup([list(map(str, range(1,NUM_GATES+1))),["Cancelar"]], one_time_keyboard=True)
 
 def start(bot, update):
     update.message.reply_text(
@@ -68,7 +70,7 @@ def main_menu(bot, update, user_data):
         return CLOSE
     elif (text == "Timbre"):
         gpio_list[0].write(1)
-        time.sleep(0.5)
+        time.sleep(DELAY)
         gpio_list[0].write(0)
         update.message.reply_text("Tocando el timbre..", reply_markup=markup_main)
         return MAIN
@@ -86,8 +88,8 @@ def open_gate(bot, update, user_data):
     else:
         update.message.reply_text("Abriendo porton "+ text)
         gpio_list[int(text)].write(1)
-        time.sleep(0.5)
-        gpio_list[int(text)].write(1)
+        time.sleep(DELAY)
+        gpio_list[int(text)].write(0)
         update.message.reply_text("Porton "+ text+ " abierto!",
         reply_markup=markup_main)
     return MAIN
@@ -100,7 +102,7 @@ def close_gate(bot, update, user_data):
     else:
         update.message.reply_text("Cerrando porton "+ text)
         gpio_list[int(text)].write(1)
-        time.sleep(0.5)
+        time.sleep(DELAY)
         gpio_list[int(text)].write(0)
         update.message.reply_text("Porton "+ text+ " cerrado!",
         reply_markup=markup_main)
