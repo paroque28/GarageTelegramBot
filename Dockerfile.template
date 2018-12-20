@@ -21,8 +21,8 @@ RUN pip install -r /requirements.txt
 COPY . ./
 
 # Build mraa
-WORKDIR /mraa
-RUN mkdir build && cd build && cmake .. -DBUILDSWIGNODE=OFF && make && mkdir /usr/local/lib/python3.6/mraa && mv * /usr/local/lib/python3.6/mraa
+WORKDIR /mraa/build
+RUN  cmake .. -DBUILDSWIGNODE=OFF && make && mkdir /usr/local/lib/python3.6/mraa && mv * /usr/local/lib/python3.6/mraa
 
 #Clean up
 WORKDIR /usr/src/app
