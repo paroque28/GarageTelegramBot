@@ -47,14 +47,17 @@ for GPIO in GPIOWRITE_LIST:
     gpiowrite_list.append(gpio)
     gpio.dir(mraa.DIR_OUT)
     gpio.write(0)
+
+
+def read_routine(gpio):
+    print("pin " + repr(gpio.getPin(True)) + " = " + repr(gpio.read()))
+
 for GPIO in GPIOREAD_LIST:
     gpio = mraa.Gpio(GPIO)
     gpio.dir(mraa.DIR_IN)
     gpioread_list.append(gpio)
     gpio.isr(mraa.EDGE_BOTH, read_routine, x)
 
-def read_routine(gpio):
-    print("pin " + repr(gpio.getPin(True)) + " = " + repr(gpio.read()))
 
 markup_main = ReplyKeyboardMarkup([['Abrir Porton','Cerrar Porton'],
                   ['Timbre','Estado de los Portones'],
