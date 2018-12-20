@@ -30,7 +30,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 NUM_GATES = 2
 MAX_TIME = 15
-MAIN, OPEN, CLOSE, SET, END = range(5)
+MAIN, OPEN, CLOSE, SUBSCRIBE, END = range(5)
 DELAY = 0.7
 GP44 = 31
 GP45 = 45
@@ -67,7 +67,7 @@ for GPIO in GPIOREAD_LIST:
 
 markup_main = ReplyKeyboardMarkup([['Abrir Porton','Cerrar Porton'],
                   ['Timbre','Estado de los Portones'],
-                  ['Ultimas 5 Acciones']], one_time_keyboard=True)
+                  ['Subscribirse']], one_time_keyboard=True)
 markup_choose = ReplyKeyboardMarkup([list(map(str, range(1,NUM_GATES+1))),["Cancelar"]], one_time_keyboard=True)
 
 def start(bot, update):
@@ -118,6 +118,7 @@ def open_gate(bot, update, user_data):
             count = MAX_TIME
             while(gpioread_list[num].read() == 0):
                 time.sleep(0.1)
+                count -= 1
                 if(count == 0):
                     update.message.reply_text("Porton "+ text+ "no pudo ser abierto!!!",
                     reply_markup=markup_main)
@@ -143,6 +144,7 @@ def close_gate(bot, update, user_data):
             count = MAX_TIME
             while(gpioread_list[num].read() == 1):
                 time.sleep(1)
+                count -= 1
                 if(count == 0):
                     update.message.reply_text("Porton "+ text+ "no pudo ser cerrado!!!",
                     reply_markup=markup_main)
@@ -154,8 +156,8 @@ def close_gate(bot, update, user_data):
             reply_markup=markup_main)
     return MAIN
 
-def set_menu(bot, update):
-    update.message.reply_text('Seteando...',
+def subscribe_menu(bot, update):
+    update.message.reply_text('Subscribiendo...',
         reply_markup=markup_main)
     return MAIN
 
@@ -178,12 +180,12 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    # Add conversation handler with the states MAIN, SET
+    # Add conversation handler with the states MAIN, SUBSCRIBE
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
 
         states={
-            MAIN: [RegexHandler('^(Abrir Porton|Cerrar Porton|Timbre|Estado de los Portones|Ultimas 5 Acciones)$',
+            MAIN: [RegexHandler('^(Abrir Porton|Cerrar Porton|Timbre|Estado de los Portones|Subscribirse)$',
                                     main_menu,
                                     pass_user_data=True),
                        ],
@@ -195,8 +197,8 @@ def main():
                                     close_gate,
                                     pass_user_data=True),
                        ],
-            SET: [MessageHandler(Filters.text,
-                                           set_menu,
+            SUBSCRIBE: [MessageHandler(Filters.text,
+                                           subscribe_menu,
                                            pass_user_data=True),
                             ],
         },
