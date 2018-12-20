@@ -32,20 +32,29 @@ NUM_GATES = 2
 MAIN, OPEN, CLOSE, SET, END = range(5)
 DELAY = 0.7
 GP44 = 31
+GP45 = 45
 GP46 = 32
+GP47 = 46
 GP48 = 33
-GPIO_LIST = [GP44, GP46, GP48]
+GP49 = 47
+GPIOWRITE_LIST = [GP44, GP46, GP48]
+GPIOREAD_LIST = [GP45, GP47, GP49]
 # initialise gpio
-gpio_list = []
-for GPIO in GPIO_LIST:
+gpiowrite_list = []
+gpioread_list = []
+for GPIO in GPIOWRITE_LIST:
     gpio = mraa.Gpio(GPIO)
-    gpio_list.append(gpio)
+    gpiowrite_list.append(gpio)
+    gpiowrite_list[i].dir(mraa.DIR_OUT)
+    gpiowrite_list[i].write(0)
+for GPIO in GPIOREAD_LIST:
+    gpio = mraa.Gpio(GPIO)
+    gpioread_list[i].dir(mraa.DIR_IN)
+    gpioread_list.append(gpio)
+    gpio.isr(mraa.EDGE_BOTH, read_routine, x)
 
-# set gpio to output
-for i in range(3):
-    gpio_list[i].dir(mraa.DIR_OUT)
-    gpio_list[i].write(0)
-
+def read_routine(gpio):
+    print("pin " + repr(gpio.getPin(True)) + " = " + repr(gpio.read()))
 
 markup_main = ReplyKeyboardMarkup([['Abrir Porton','Cerrar Porton'],
                   ['Timbre','Estado de los Portones'],
@@ -69,9 +78,9 @@ def main_menu(bot, update, user_data):
         update.message.reply_text("Cual desea cerrar?", reply_markup=markup_choose)
         return CLOSE
     elif (text == "Timbre"):
-        gpio_list[0].write(1)
+        gpiowrite_list[0].write(1)
         time.sleep(DELAY)
-        gpio_list[0].write(0)
+        gpiowrite_list[0].write(0)
         update.message.reply_text("Tocando el timbre..", reply_markup=markup_main)
         return MAIN
     else:
@@ -86,12 +95,17 @@ def open_gate(bot, update, user_data):
         update.message.reply_text("Que desea hacer? ",
         reply_markup=markup_main)
     else:
-        update.message.reply_text("Abriendo porton "+ text)
-        gpio_list[int(text)].write(1)
-        time.sleep(DELAY)
-        gpio_list[int(text)].write(0)
-        update.message.reply_text("Porton "+ text+ " abierto!",
-        reply_markup=markup_main)
+        if (gpioread_list[num].read() == 0):
+            num = int(text)
+            update.message.reply_text("Abriendo porton "+ text)
+            gpiowrite_list[num].write(1)
+            time.sleep(DELAY)
+            gpiowrite_list[num].write(0)
+            update.message.reply_text("Porton "+ text+ " abierto!",
+            reply_markup=markup_main)
+        else:
+            update.message.reply_text("Porton "+ text+ " ya estaba abierto!",
+            reply_markup=markup_main)
     return MAIN
 
 def close_gate(bot, update, user_data):
@@ -100,12 +114,17 @@ def close_gate(bot, update, user_data):
         update.message.reply_text("Que desea hacer? ",
         reply_markup=markup_main)
     else:
-        update.message.reply_text("Cerrando porton "+ text)
-        gpio_list[int(text)].write(1)
-        time.sleep(DELAY)
-        gpio_list[int(text)].write(0)
-        update.message.reply_text("Porton "+ text+ " cerrado!",
-        reply_markup=markup_main)
+        num = int(text)
+        if (gpioread_list[num].read() != 0):
+            update.message.reply_text("Cerrando porton "+ text)
+            gpiowrite_list[num].write(1)
+            time.sleep(DELAY)
+            gpiowrite_list[num].write(0)
+            update.message.reply_text("Porton "+ text+ " cerrado!",
+            reply_markup=markup_main)
+        else:
+            update.message.reply_text("Porton "+ text+ " ya estaba cerrado!",
+            reply_markup=markup_main)
     return MAIN
 
 def set_menu(bot, update):
