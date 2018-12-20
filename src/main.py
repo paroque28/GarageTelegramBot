@@ -29,7 +29,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 NUM_GATES = 2
-MAX_TIME = 10
+MAX_TIME = 20
 MAIN, OPEN, CLOSE, SUBSCRIBE, END = range(5)
 DELAY = 0.7
 GP44 = 31
