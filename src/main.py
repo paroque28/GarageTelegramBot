@@ -94,7 +94,13 @@ def main_menu(bot, update, user_data):
         return MAIN
     elif (text == "Estado de los Portones"):
         for i in range(len(gpioread_list)):
-            update.message.reply_text("Porton "+ str(i)+ " en estado: " + str(gpioread_list[i].read()))
+            if(gpioread_list[i].read() == 0):
+                estado = "cerrado"
+            elif(gpioread_list[i].read() == 1):
+                estado = "abierto"
+            else:
+                estado = "desconocido"
+            update.message.reply_text("Porton "+ str(i)+ " en estado: " + estado)
         update.message.reply_text("Fin", reply_markup=markup_main)
         return MAIN
     else:
@@ -126,7 +132,7 @@ def open_gate(bot, update, user_data):
             update.message.reply_text("Porton "+ text+ " abierto!",
             reply_markup=markup_main)
         else:
-            update.message.reply_text("Porton "+ text+ " ya estaba abierto!",
+            update.message.reply_text("Porton "+ text+ " ya esta abierto!",
             reply_markup=markup_main)
     return MAIN
 
@@ -152,7 +158,7 @@ def close_gate(bot, update, user_data):
             update.message.reply_text("Porton "+ text+ " cerrado!",
             reply_markup=markup_main)
         else:
-            update.message.reply_text("Porton "+ text+ " ya estaba cerrado!",
+            update.message.reply_text("Porton "+ text+ " ya esta cerrado!",
             reply_markup=markup_main)
     return MAIN
 
