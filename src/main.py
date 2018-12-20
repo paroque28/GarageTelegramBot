@@ -93,13 +93,15 @@ def main_menu(bot, update, user_data):
     return MAIN
 
 def open_gate(bot, update, user_data):
+    
     text = update.message.text
     if(text == "Cancelar"):
         update.message.reply_text("Que desea hacer? ",
         reply_markup=markup_main)
     else:
+        num = int(text)
+        print(gpioread_list[num].read())
         if (gpioread_list[num].read() == 0):
-            num = int(text)
             update.message.reply_text("Abriendo porton "+ text)
             gpiowrite_list[num].write(1)
             time.sleep(DELAY)
@@ -118,6 +120,7 @@ def close_gate(bot, update, user_data):
         reply_markup=markup_main)
     else:
         num = int(text)
+        print(gpioread_list[num].read())
         if (gpioread_list[num].read() != 0):
             update.message.reply_text("Cerrando porton "+ text)
             gpiowrite_list[num].write(1)
