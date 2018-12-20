@@ -22,7 +22,7 @@ COPY . ./
 
 # Build mraa
 WORKDIR /mraa/build
-RUN  cmake .. -DBUILDSWIGNODE=OFF && make && mkdir /usr/local/lib/python3.6/mraa && mv * /usr/local/lib/python3.6/mraa
+RUN  cmake .. -DBUILDSWIGNODE=OFF && make _python3-mraa && mkdir /usr/local/lib/python3.6/mraa && mv * /usr/local/lib/python3.6/mraa
 
 #Clean up
 WORKDIR /usr/src/app
