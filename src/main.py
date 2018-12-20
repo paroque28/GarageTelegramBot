@@ -29,7 +29,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 NUM_GATES = 2
-MAX_TIME = 15
+MAX_TIME = 10
 MAIN, OPEN, CLOSE, SUBSCRIBE, END = range(5)
 DELAY = 0.7
 GP44 = 31
@@ -117,12 +117,12 @@ def open_gate(bot, update, user_data):
             touch_button(gpiowrite_list[num])
             count = MAX_TIME
             while(gpioread_list[num].read() == 0):
-                time.sleep(0.1)
+                time.sleep(1)
                 count -= 1
                 if(count == 0):
-                    update.message.reply_text("Porton "+ text+ "no pudo ser abierto!!!",
+                    update.message.reply_text("Porton "+ text+ " no pudo ser abierto!!!",
                     reply_markup=markup_main)
-                    break;
+                    return MAIN
             update.message.reply_text("Porton "+ text+ " abierto!",
             reply_markup=markup_main)
         else:
@@ -146,9 +146,9 @@ def close_gate(bot, update, user_data):
                 time.sleep(1)
                 count -= 1
                 if(count == 0):
-                    update.message.reply_text("Porton "+ text+ "no pudo ser cerrado!!!",
+                    update.message.reply_text("Porton "+ text+ " no pudo ser cerrado!!!",
                     reply_markup=markup_main)
-                    break;
+                    return MAIN
             update.message.reply_text("Porton "+ text+ " cerrado!",
             reply_markup=markup_main)
         else:
