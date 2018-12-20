@@ -101,11 +101,13 @@ def open_gate(bot, update, user_data):
     else:
         num = int(text)
         print(gpioread_list[num].read())
-        if (gpioread_list[num].read() == 1):
+        if (gpioread_list[num].read() == 0):
             update.message.reply_text("Abriendo porton "+ text)
             gpiowrite_list[num].write(1)
             time.sleep(DELAY)
             gpiowrite_list[num].write(0)
+            while(gpioread_list[num].read() == 0):
+                time.sleep(0.1)
             update.message.reply_text("Porton "+ text+ " abierto!",
             reply_markup=markup_main)
         else:
@@ -121,11 +123,13 @@ def close_gate(bot, update, user_data):
     else:
         num = int(text)
         print(gpioread_list[num].read())
-        if (gpioread_list[num].read() == 0):
+        if (gpioread_list[num].read() == 1):
             update.message.reply_text("Cerrando porton "+ text)
             gpiowrite_list[num].write(1)
             time.sleep(DELAY)
             gpiowrite_list[num].write(0)
+            while(gpioread_list[num].read() == 1):
+                time.sleep(0.1)
             update.message.reply_text("Porton "+ text+ " cerrado!",
             reply_markup=markup_main)
         else:
