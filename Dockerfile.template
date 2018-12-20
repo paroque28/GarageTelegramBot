@@ -12,8 +12,10 @@ FROM resin/%%RESIN_MACHINE_NAME%%-python:3
 WORKDIR /mraa/build
 RUN  cmake .. -DBUILDSWIGNODE=OFF
 RUN make _python3-mraa
+RUN mkdir /usr/local/lib/python3.6/mraa && mv src/python/python3/* /usr/local/lib/python3.6/mraa
+RUN export PYTHONPATH=$PYTHONPATH:$(dirname $(find /usr/local -name mraa.py))
 
-# Change Workdir
+#Clean up
 WORKDIR /usr/src/app
 RUN rm -rf /mraa
 
