@@ -17,7 +17,7 @@ RUN export PYTHONPATH=$PYTHONPATH:$(dirname $(find /usr/local -name mraa.py))
 
 #Clean up
 WORKDIR /usr/src/app
-RUN rm -rf /mraa
+#RUN rm -rf /mraa
 
 # Copy requirements.txt first for better cache on later pushes
 COPY ./requirements.txt /requirements.txt
