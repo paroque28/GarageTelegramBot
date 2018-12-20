@@ -31,12 +31,18 @@ logger = logging.getLogger(__name__)
 NUM_GATES = 2
 MAIN, OPEN, CLOSE, SET, END = range(5)
 GP44 = 31
-
-# initialise gpio GP44
-gpio_1 = mraa.Gpio(GP44)
+GP46 = 32
+GP48 = 33
+GPIO_LIST = [GP44, GP46, GP48]
+# initialise gpio
+gpio = []
+for i in GPIO_LIST:
+    gpio.append(mraa.Gpio(i))
 
 # set gpio GP44 to output
-gpio_1.dir(mraa.DIR_OUT)
+gpio[0].dir(mraa.DIR_OUT)
+gpio[1].dir(mraa.DIR_OUT)
+gpio[2].dir(mraa.DIR_OUT)
 
 
 markup_main = ReplyKeyboardMarkup([['Abrir Porton','Cerrar Porton'],
@@ -61,6 +67,9 @@ def main_menu(bot, update, user_data):
         update.message.reply_text("Cual desea cerrar?", reply_markup=markup_choose)
         return CLOSE
     elif (text == "Timbre"):
+        gpio[0].write(1)
+        time.sleep(0.5)
+        gpio[0].write(1)
         update.message.reply_text("Tocando el timbre..", reply_markup=markup_main)
         return MAIN
     else:
@@ -71,16 +80,29 @@ def main_menu(bot, update, user_data):
 
 def open_gate(bot, update, user_data):
     text = update.message.text
-    update.message.reply_text("Abriendo porton "+ text,
+    if(text == "Cancelar"):
+        update.message.reply_text("Que desea hacer? "+ text,
         reply_markup=markup_main)
-    gpio_1.write(1)
-    time.sleep(0.5)
-    gpio_1.write(0)
+    else:
+        update.message.reply_text("Abriendo porton "+ text)
+        gpio[int(text)].write(1)
+        time.sleep(0.5)
+        gpio[int(text)].write(1)
+        update.message.reply_text("Porton "+ text+ " abierto!",
+        reply_markup=markup_main)
     return MAIN
 
 def close_gate(bot, update, user_data):
     text = update.message.text
-    update.message.reply_text("Cerrando porton "+ text,
+    if(text == "Cancelar"):
+        update.message.reply_text("Que desea hacer? "+ text,
+        reply_markup=markup_main)
+    else:
+        update.message.reply_text("Cerrando porton "+ text)
+        gpio[int(text)].write(1)
+        time.sleep(0.5)
+        gpio[int(text)].write(0)
+        update.message.reply_text("Porton "+ text+ " cerrado!",
         reply_markup=markup_main)
     return MAIN
 
