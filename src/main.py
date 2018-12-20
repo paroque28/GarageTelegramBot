@@ -29,6 +29,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 NUM_GATES = 2
+MAX_TIME = 15
 MAIN, OPEN, CLOSE, SET, END = range(5)
 DELAY = 0.7
 GP44 = 31
@@ -51,6 +52,11 @@ for GPIO in GPIOWRITE_LIST:
 
 def read_routine(gpio):
     print("pin " + repr(gpio.getPin(True)) + " = " + repr(gpio.read()))
+
+def touch_button(gpio):
+    gpio.write(1)
+    time.sleep(DELAY)
+    gpio.write(0)
 
 for GPIO in GPIOREAD_LIST:
     gpio = mraa.Gpio(GPIO)
@@ -75,16 +81,21 @@ def start(bot, update):
 def main_menu(bot, update, user_data):
     text = update.message.text
     if (text == "Abrir Porton"):
-        update.message.reply_text("En hora buena! Cual desea abrir?", reply_markup=markup_choose)
+        update.message.reply_text("Cual porton desea abrir?", reply_markup=markup_choose)
         return OPEN
     elif (text == "Cerrar Porton"):
-        update.message.reply_text("Cual desea cerrar?", reply_markup=markup_choose)
+        update.message.reply_text("Cual porton desea cerrar?", reply_markup=markup_choose)
         return CLOSE
     elif (text == "Timbre"):
         gpiowrite_list[0].write(1)
         time.sleep(DELAY)
         gpiowrite_list[0].write(0)
         update.message.reply_text("Tocando el timbre..", reply_markup=markup_main)
+        return MAIN
+    elif (text == "Estado de los Portones"):
+        for i in range(len(gpioread_list)):
+            update.message.reply_text("Porton "+ str(i)+ " en estado: " + str(gpioread_list[i].read()))
+        update.message.reply_text("Fin", reply_markup=markup_main)
         return MAIN
     else:
         return MAIN
@@ -103,11 +114,14 @@ def open_gate(bot, update, user_data):
         print(gpioread_list[num].read())
         if (gpioread_list[num].read() == 0):
             update.message.reply_text("Abriendo porton "+ text)
-            gpiowrite_list[num].write(1)
-            time.sleep(DELAY)
-            gpiowrite_list[num].write(0)
+            touch_button(gpiowrite_list[num])
+            count = MAX_TIME
             while(gpioread_list[num].read() == 0):
                 time.sleep(0.1)
+                if(count == 0):
+                    update.message.reply_text("Porton "+ text+ "no pudo ser abierto!!!",
+                    reply_markup=markup_main)
+                    break;
             update.message.reply_text("Porton "+ text+ " abierto!",
             reply_markup=markup_main)
         else:
@@ -125,11 +139,14 @@ def close_gate(bot, update, user_data):
         print(gpioread_list[num].read())
         if (gpioread_list[num].read() == 1):
             update.message.reply_text("Cerrando porton "+ text)
-            gpiowrite_list[num].write(1)
-            time.sleep(DELAY)
-            gpiowrite_list[num].write(0)
+            touch_button(gpiowrite_list[num])
+            count = MAX_TIME
             while(gpioread_list[num].read() == 1):
-                time.sleep(0.1)
+                time.sleep(1)
+                if(count == 0):
+                    update.message.reply_text("Porton "+ text+ "no pudo ser cerrado!!!",
+                    reply_markup=markup_main)
+                    break;
             update.message.reply_text("Porton "+ text+ " cerrado!",
             reply_markup=markup_main)
         else:
