@@ -56,7 +56,7 @@ for GPIO in GPIOREAD_LIST:
     gpio = mraa.Gpio(GPIO)
     gpio.dir(mraa.DIR_IN)
     gpioread_list.append(gpio)
-    gpio.isr(mraa.EDGE_BOTH, read_routine, x)
+    gpio.isr(mraa.EDGE_BOTH, read_routine, gpio)
 
 
 markup_main = ReplyKeyboardMarkup([['Abrir Porton','Cerrar Porton'],
