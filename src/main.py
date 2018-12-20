@@ -45,11 +45,11 @@ gpioread_list = []
 for GPIO in GPIOWRITE_LIST:
     gpio = mraa.Gpio(GPIO)
     gpiowrite_list.append(gpio)
-    gpiowrite_list[i].dir(mraa.DIR_OUT)
-    gpiowrite_list[i].write(0)
+    gpio.dir(mraa.DIR_OUT)
+    gpio.write(0)
 for GPIO in GPIOREAD_LIST:
     gpio = mraa.Gpio(GPIO)
-    gpioread_list[i].dir(mraa.DIR_IN)
+    gpio.dir(mraa.DIR_IN)
     gpioread_list.append(gpio)
     gpio.isr(mraa.EDGE_BOTH, read_routine, x)
 
