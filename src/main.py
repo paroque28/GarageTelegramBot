@@ -28,7 +28,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
-ALLOWED_USERS = ["cyanpablo", "perohe28"]
+ALLOWED_USERS = ["cyanpablo", "perohe28", "vickyque14", "perq08"]
 NUM_GATES = 2
 MAX_TIME = 20
 MAIN, OPEN, CLOSE, SUBSCRIBE, END, BLOCKED = range(6)
@@ -72,11 +72,10 @@ markup_main = ReplyKeyboardMarkup([['Abrir Porton','Cerrar Porton'],
 markup_choose = ReplyKeyboardMarkup([list(map(str, range(1,NUM_GATES+1))),["Cancelar"]], one_time_keyboard=True)
 
 def start(bot, update):
-    update.message.reply_text(
+    if(update.effective_user.username in  ALLOWED_USERS):
+        update.message.reply_text(
         "Bienvenido a RQWireless {}\nQue desea hacer ?".format(update.effective_user.first_name),
         reply_markup=markup_main)
-    print(update.effective_user)
-    if(update.effective_user.username in  ALLOWED_USERS):
         return MAIN
     else:
         update.message.reply_text("Usted no esta autorizado para utilizar este bot")
