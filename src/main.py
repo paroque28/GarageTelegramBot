@@ -94,9 +94,9 @@ def main_menu(bot, update, user_data):
         return MAIN
     elif (text == "Estado de los Portones"):
         for i in range(len(gpioread_list)):
-            if(gpioread_list[i].read() == 0):
+            if(gpioread_list[i].read() == 1):
                 estado = "cerrado"
-            elif(gpioread_list[i].read() == 1):
+            elif(gpioread_list[i].read() == 0):
                 estado = "abierto"
             else:
                 estado = "desconocido"
@@ -117,12 +117,11 @@ def open_gate(bot, update, user_data):
         reply_markup=markup_main)
     else:
         num = int(text)
-        print(gpioread_list[num].read())
-        if (gpioread_list[num].read() == 0):
+        if (gpioread_list[num].read() == 1):
             update.message.reply_text("Abriendo porton "+ text)
             touch_button(gpiowrite_list[num])
             count = MAX_TIME
-            while(gpioread_list[num].read() == 0):
+            while(gpioread_list[num].read() == 1):
                 time.sleep(1)
                 count -= 1
                 if(count == 0):
@@ -143,12 +142,11 @@ def close_gate(bot, update, user_data):
         reply_markup=markup_main)
     else:
         num = int(text)
-        print(gpioread_list[num].read())
-        if (gpioread_list[num].read() == 1):
+        if (gpioread_list[num].read() == 0):
             update.message.reply_text("Cerrando porton "+ text)
             touch_button(gpiowrite_list[num])
             count = MAX_TIME
-            while(gpioread_list[num].read() == 1):
+            while(gpioread_list[num].read() == 0):
                 time.sleep(1)
                 count -= 1
                 if(count == 0):
