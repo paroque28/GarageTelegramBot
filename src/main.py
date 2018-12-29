@@ -28,9 +28,10 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+ALLOWED_USERS = ["cyanpablo", "perohe28"]
 NUM_GATES = 2
 MAX_TIME = 20
-MAIN, OPEN, CLOSE, SUBSCRIBE, END = range(5)
+MAIN, OPEN, CLOSE, SUBSCRIBE, END, BLOCKED = range(6)
 DELAY = 0.7
 GP44 = 31
 GP45 = 45
@@ -75,8 +76,11 @@ def start(bot, update):
         "Bienvenido a RQWireless {}\nQue desea hacer ?".format(update.effective_user.first_name),
         reply_markup=markup_main)
     print(update.effective_user)
-
-    return MAIN
+    if(update.effective_user.username in  ALLOWED_USERS):
+        return MAIN
+    else:
+        update.message.reply_text("Usted no esta autorizado para utilizar este bot")
+        return BLOCKED
 
 def main_menu(bot, update, user_data):
     text = update.message.text
@@ -102,6 +106,10 @@ def main_menu(bot, update, user_data):
                 estado = "desconocido"
             update.message.reply_text("Porton "+ str(i)+ " en estado: " + estado)
         update.message.reply_text("Fin", reply_markup=markup_main)
+        return MAIN
+    elif (text == "Subscribirse"):
+        update.message.reply_text('Subscribiendo...',
+        reply_markup=markup_main)
         return MAIN
     else:
         return MAIN
@@ -164,6 +172,9 @@ def subscribe_menu(bot, update):
     update.message.reply_text('Subscribiendo...',
         reply_markup=markup_main)
     return MAIN
+def blocked_menu(bot, update):
+    update.message.reply_text('Usted no esta autorizado')
+    return MAIN
 
 def done(bot, update, user_data):
     user_data.clear()
@@ -203,6 +214,10 @@ def main():
                        ],
             SUBSCRIBE: [MessageHandler(Filters.text,
                                            subscribe_menu,
+                                           pass_user_data=True),
+                            ],
+            BLOCKED: [MessageHandler(Filters.text,
+                                           blocked_menu,
                                            pass_user_data=True),
                             ],
         },
