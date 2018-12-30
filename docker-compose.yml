@@ -7,7 +7,7 @@ services:
     restart: always
     build: ./telegram-frontend
   db:
-    image: postgres
+    image: i386/postgres
     restart: always
     environment:
       POSTGRES_PASSWORD: supersecretpassword
