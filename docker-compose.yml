@@ -1,0 +1,13 @@
+version: '2'
+volumes: 
+    db-data:
+services:
+  telegram-frontend:
+    build: ./frontend
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: supersecretpassword
+    ports:
+    - "5432:5432"
