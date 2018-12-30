@@ -3,6 +3,8 @@ volumes:
     db-data:
 services:
   telegram-frontend:
+    privileged: true
+    restart: always
     build: ./telegram-frontend
   db:
     image: postgres
