@@ -1,2 +1,4 @@
 token
 .balena-sync.yml
+*/__pycache__/*
+telegram-frontend/src/__pycache__/

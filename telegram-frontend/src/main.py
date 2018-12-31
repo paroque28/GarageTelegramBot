@@ -23,7 +23,7 @@ import gpio
 import os
 import logging
 import time
-import constants
+import constants as c
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -34,39 +34,42 @@ logger = logging.getLogger(__name__)
 
 markup_main = ReplyKeyboardMarkup([['Abrir Porton','Cerrar Porton'],
                   ['Timbre','Estado de los Portones'],
-                  ['Subscribirse']], one_time_keyboard=True)
-markup_choose = ReplyKeyboardMarkup([list(map(str, range(1,NUM_GATES+1))),["Cancelar"]], one_time_keyboard=True)
+                  ['Subscripciones']], one_time_keyboard=True)
+subscribe_main = ReplyKeyboardMarkup([['Ver subscripciones'],
+                  ['Subscribirse','Desubscribirse'], ["Volver"]], one_time_keyboard=True)
+markup_choose = ReplyKeyboardMarkup([list(map(str, range(1,c.NUM_GATES+1))),["Cancelar"]], one_time_keyboard=True)
 
 def start(bot, update):
-    if(DEBUG > 0):
+    if(c.DEBUG > 0):
         print(update.effective_user)
-    if(update.effective_user.username in  ALLOWED_USERS):
+        print(update.message.chat_id)
+    if(update.effective_user.username in  c.ALLOWED_USERS and not update.effective_user.is_bot):
         update.message.reply_text(
         "Bienvenido {}\nQue desea hacer ?".format(update.effective_user.first_name),
         reply_markup=markup_main)
-        return MAIN
+        return c.MAIN
     else:
         update.message.reply_text("Usted no esta autorizado para utilizar este bot")
-        return BLOCKED
+        return c.BLOCKED
 
 def main_menu(bot, update, user_data):
     text = update.message.text
     if (text == "Abrir Porton"):
         update.message.reply_text("Cual porton desea abrir?", reply_markup=markup_choose)
-        return OPEN
+        return c.OPEN
     elif (text == "Cerrar Porton"):
         update.message.reply_text("Cual porton desea cerrar?", reply_markup=markup_choose)
-        return CLOSE
+        return c.CLOSE
     elif (text == "Timbre"):
         touch_button(0)
         update.message.reply_text("Tocando el timbre..", reply_markup=markup_main)
-        return MAIN
+        return c.MAIN
     elif (text == "Estado de los Portones"):
         message = ""
-        for i in range(TOTAL_SENSORS):
-            if(read_gpio(i) == CLOSED_GPIO):
+        for i in range(c.TOTAL_SENSORS):
+            if(gpio.read_gpio(i) == c.CLOSED_GPIO):
                 state = "cerrado"
-            elif(read_gpio(i) == OPEN_GPIO):
+            elif(gpio.read_gpio(i) == c.OPEN_GPIO):
                 state = "abierto"
             else:
                 state = "desconocido"
@@ -75,62 +78,42 @@ def main_menu(bot, update, user_data):
             else: 
                 message += "Porton "+ str(i)+ " en estado: " + state + "\n"
         update.message.reply_text(message, reply_markup=markup_main)
-        return MAIN
-    elif (text == "Subscribirse"):
+        return c.MAIN
+    elif (text == "Subscripciones"):
         update.message.reply_text('Subscribiendo...',
-        reply_markup=markup_main)
-        return MAIN
+        reply_markup=subscribe_main)
+        return c.SUBSCRIBE
     else:
-        return MAIN
+        return c.MAIN
     
 
-    return MAIN
-def open_close_routine(num,desired_state, action_text, state_text):
-    if (num> NUM_GATES or num == 0):
-        update.message.reply_text("Opcion invalida\nQue desea hacer? ", reply_markup=markup_main)
-        return MAIN
-    if (read_gpio(num) != desired_state):
-        update.message.reply_text(action_text+ " "+ text)
-        touch_button(num)
-        count = MAX_TIME
-        while((read_gpio(num) != desired_state):
-            time.sleep(1) # sleep 1 second
-            count -= 1
-            if(count == 0):
-                update.message.reply_text("Porton "+ text+ " no pudo ser "+ state_text + "!!!",
-                reply_markup=markup_main)
-                return MAIN
-        update.message.reply_text("Porton "+ text+ " "+ state_text + "!",
-        reply_markup=markup_main)
-    else:
-        update.message.reply_text("Porton "+ text+ " ya esta " + state_text + "!",
-        reply_markup=markup_main)
-    return MAIN
+    return c.MAIN
 
 def open_gate(bot, update, user_data):
     
     text = update.message.text
     if(text == "Cancelar"):
         update.message.reply_text("Que desea hacer? ", reply_markup=markup_main)
-        return MAIN
-    
-    return open_close_routine(num, OPEN_GPIO,"Abriendo porton ","abierto")
+        return c.MAIN
+    num = int(text)
+    return gpio.open_close_routine(update, num, c.OPEN_GPIO,"Abriendo porton ","abierto")
 
 def close_gate(bot, update, user_data):
     text = update.message.text
     if(text == "Cancelar"):
         update.message.reply_text("Que desea hacer? ",
         reply_markup=markup_main)
+        return c.MAIN
     num = int(text)
-    return open_close_routine(num, CLOSED_GPIO,"Cerrando porton ","cerrado")
+    return gpio.open_close_routine(update, num, c.CLOSED_GPIO,"Cerrando porton ","cerrado")
 
 def subscribe_menu(bot, update):
     update.message.reply_text('Subscribiendo...',
         reply_markup=markup_main)
-    return MAIN
+    return c.MAIN
 def blocked_menu(bot, update):
     update.message.reply_text('Usted no esta autorizado')
-    return MAIN
+    return c.MAIN
 
 def done(bot, update, user_data):
     user_data.clear()
@@ -149,27 +132,27 @@ def main():
     updater = Updater(token)
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
-    # Add conversation handler with the states MAIN, SUBSCRIBE
+    # Add conversation handler with the states c.MAIN, c.SUBSCRIBE
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            MAIN: [RegexHandler('^(Abrir Porton|Cerrar Porton|Timbre|Estado de los Portones|Subscribirse)$',
+            c.MAIN: [RegexHandler('^(Abrir Porton|Cerrar Porton|Timbre|Estado de los Portones|Subscripciones)$',
                                     main_menu,
                                     pass_user_data=True),
                        ],
-            OPEN: [RegexHandler('^(\d+|Cancelar)$',
+            c.OPEN: [RegexHandler('^(\d+|Cancelar)$',
                                     open_gate,
                                     pass_user_data=True),
                        ],
-            CLOSE: [RegexHandler('^(\d+|Cancelar)$',
+            c.CLOSE: [RegexHandler('^(\d+|Cancelar)$',
                                     close_gate,
                                     pass_user_data=True),
                        ],
-            SUBSCRIBE: [MessageHandler(Filters.text,
+            c.SUBSCRIBE: [RegexHandler('^(Ver subscripciones|Subscribirse|Desubscribirse|Volver)$',
                                            subscribe_menu,
                                            pass_user_data=True),
                             ],
-            BLOCKED: [MessageHandler(Filters.text,
+            c.BLOCKED: [MessageHandler(Filters.text,
                                            blocked_menu,
                                            pass_user_data=True),
                             ],
