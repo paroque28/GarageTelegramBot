@@ -30,7 +30,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
-
+persistence = PicklePersistence(filename='telegram_save_state')
 
 markup_main = ReplyKeyboardMarkup([['Abrir Porton','Cerrar Porton'],
                   ['Timbre','Estado de los Portones'],
@@ -129,7 +129,7 @@ def main():
     #Read Token
     token = someVariable = os.environ['TELEGRAM_TOKEN']
     # Create the EventHandler and pass it your bot's token.
-    updater = Updater(token)
+    updater = Updater(token, persistence=persistence)
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
     # Add conversation handler with the states c.MAIN, c.SUBSCRIBE

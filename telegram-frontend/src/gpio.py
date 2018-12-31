@@ -22,7 +22,7 @@ def open_close_routine(update, num,desired_state, action_text, state_text):
         update.message.reply_text("Opcion invalida\nQue desea hacer? ", reply_markup=markup_main)
         return c.MAIN
     if (read_gpio(num) != desired_state):
-        update.message.reply_text(action_text+ " "+ text)
+        update.message.reply_text(action_text+ " "+ string(num))
         touch_button(num)
         count = c.MAX_TIME
         while(read_gpio(num) != desired_state):
