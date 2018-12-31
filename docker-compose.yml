@@ -1,11 +1,14 @@
 version: '2'
 volumes: 
     db-data:
+    telegram-data:
 services:
   telegram-frontend:
     privileged: true
     restart: always
     build: ./telegram-frontend
+    volumes: 
+            - 'telegram-data:/root/telegram_save_state'
   db:
     image: i386/postgres
     restart: always

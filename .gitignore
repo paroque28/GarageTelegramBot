@@ -2,3 +2,4 @@ token
 .balena-sync.yml
 */__pycache__/*
 telegram-frontend/src/__pycache__/
+telegram-frontend/src/telegram_save_state

@@ -17,20 +17,20 @@ bot.
 
 from telegram import ReplyKeyboardMarkup
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, RegexHandler,
-                          ConversationHandler)
+                          ConversationHandler, PicklePersistence)
 import psycopg2
 import gpio
 import os
 import logging
-import time
 import constants as c
-
+from pathlib import Path
+home = str(Path.home())
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
-persistence = PicklePersistence(filename='telegram_save_state')
+persistence = PicklePersistence(filename=home+'/telegram_save_state')
 
 markup_main = ReplyKeyboardMarkup([['Abrir Porton','Cerrar Porton'],
                   ['Timbre','Estado de los Portones'],
@@ -95,8 +95,9 @@ def open_gate(bot, update, user_data):
     if(text == "Cancelar"):
         update.message.reply_text("Que desea hacer? ", reply_markup=markup_main)
         return c.MAIN
-    num = int(text)
-    return gpio.open_close_routine(update, num, c.OPEN_GPIO,"Abriendo porton ","abierto")
+    next_state = gpio.open_close_routine(update, int(text), c.OPEN_GPIO,"Abriendo porton ","abierto")
+    update.message.reply_text("Que desea hacer? ", reply_markup=markup_main)
+    return next_state
 
 def close_gate(bot, update, user_data):
     text = update.message.text
@@ -104,8 +105,9 @@ def close_gate(bot, update, user_data):
         update.message.reply_text("Que desea hacer? ",
         reply_markup=markup_main)
         return c.MAIN
-    num = int(text)
-    return gpio.open_close_routine(update, num, c.CLOSED_GPIO,"Cerrando porton ","cerrado")
+    next_state = gpio.open_close_routine(update, int(text), c.CLOSED_GPIO,"Cerrando porton ","cerrado")
+    update.message.reply_text("Que desea hacer? ", reply_markup=markup_main)
+    return next_state
 
 def subscribe_menu(bot, update):
     update.message.reply_text('Subscribiendo...',
@@ -158,7 +160,8 @@ def main():
                             ],
         },
 
-        fallbacks=[RegexHandler('^Done$', done, pass_user_data=True)]
+        fallbacks=[RegexHandler('^Done$', done, pass_user_data=True)],
+        persistent=True, name='default'
     )
 
     dp.add_handler(conv_handler)
