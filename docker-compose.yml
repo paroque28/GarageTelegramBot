@@ -8,7 +8,7 @@ services:
     restart: always
     build: ./telegram-frontend
     volumes: 
-            - 'telegram-data:/root/telegram_save_state'
+            - 'telegram-data:/root/telegram'
   db:
     image: i386/postgres
     restart: always

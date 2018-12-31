@@ -4,16 +4,14 @@ DEVELOPER_COMPUTER = platform.architecture()[0]
 # Developer tests token $env:TELEGRAM_TOKEN = "681248634:AAFxOsEz3yCTMlu9puVfhtOOEIugYElHL2A"
 # Debug:  0 : disabled, 1: debug info messages, 2: frequent debug messages (bad for logs), 3: super annoying logs
 DEBUG = 1
-# Allowed users to operate doors to improve with database
-ALLOWED_USERS = ["cyanpablo", "perohe28", "vickyque14", "perq08"]
 # Foresee more doors
 NUM_GATES = 2
 TOTAL_SENSORS = 3
 TOTAL_RELAYS = 3
 # Max wating time for open/ close operations
-MAX_TIME = 20
+MAX_TIME = 30
 # States for Telegram logic
-MAIN, OPEN, CLOSE, SUBSCRIBE, END, BLOCKED = range(6)
+MAIN, OPEN, CLOSE, SUBSCRIBE, SELECT_SUBSCRIBE, SELECT_UNSUBSCRIBE, END, BLOCKED = range(8)
 # Delay on amount time relay is on
 DELAY = 0.7
 # Intel Edison GPIO pins with Sparkfun breakout board
