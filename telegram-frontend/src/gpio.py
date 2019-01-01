@@ -41,8 +41,14 @@ def timer_close_gate(bot, num):
         sleep(1) # sleep 1 second
         count -= 1
         if(count == 0):
-            count = c.MAX_TIME_WAIT
+            count = c.MAX_TIME*2
             touch_button(num)
+            while(read_gpio(num) != c.CLOSED_GPIO):
+                sleep(1) # sleep 1 second
+                count -= 1
+                if(count == 0)
+                    count = c.MAX_TIME
+                    touch_button(num)
 
 
 
