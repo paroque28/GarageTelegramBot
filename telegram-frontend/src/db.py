@@ -62,3 +62,25 @@ def add_user(id, username, name):
         else:  
             print("Already registered: "+ username+ " with id: "+ str(id))
     return created
+
+def subscribe(user_id, gate_id):
+    sql = """INSERT INTO public.subscriptions(user_id, gate_id) VALUES (%s, %s)"""
+    created = False
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT 1 FROM subscriptions WHERE user_id =" + str(user_id) + " AND gate_id ="+ str(gate_id))
+        if not cur.fetchone():
+            cur.execute(sql, (user_id, gate_id))
+            conn.commit()
+            created = True
+        else:
+            created =  False
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    if(c.DEBUG>0):
+        if created:
+            print("Subscribed: "+ str(user_id)+ " with gate: "+ str(gate_id))
+        else:  
+            print("Already subscribed: "+ str(user_id)+ " with gate: "+ str(gate_id))
+    return created

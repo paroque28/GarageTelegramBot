@@ -8,9 +8,11 @@ To get this project up and running, you will need to signup for a balena account
 ```
 $ git clone git@github.com:paroque28/GarageTelegramBot.git
 ```
-Add the telegram token:
+Set environment variables on balena:
 ```
-$ echo "*************" > token
+POSTGRES_HOST
+POSTGRES_PASSWORD
+TELEGRAM_TOKEN
 ```
 Then add your balena application's remote:
 ```
@@ -20,5 +22,6 @@ and push the code to the newly added remote:
 ```
 $ git push balena master
 ```
+Connect to postgres db and apply initial.sql to populate db
 
 [balena-link]:https://balena.io/

@@ -47,12 +47,19 @@ def open_close_routine(update, num,desired_state, action_text, state_text):
         update.message.reply_text("Porton "+ text+ " ya esta " + state_text + "!")
     return c.MAIN 
 
+def read_routine(gpio):
+    print("pin " + repr(gpio.getPin(True)) + " = " + repr(gpio.read()))
+
+def set_isr(function):
+    if(c.DEVELOPER_COMPUTER != '64bit'):
+        for gpio in gpioread_list:
+            gpio.isr(mraa.EDGE_BOTH, function, gpio)
+
 if(c.DEVELOPER_COMPUTER != '64bit'):
     for GPIO in c.GPIOREAD_LIST:
         gpio = mraa.Gpio(GPIO)
         gpio.dir(mraa.DIR_IN)
         gpioread_list.append(gpio)
-        #gpio.isr(mraa.EDGE_BOTH, read_routine, gpio)
 
     # initialise gpio
     for GPIO in c.GPIOWRITE_LIST:
@@ -60,3 +67,5 @@ if(c.DEVELOPER_COMPUTER != '64bit'):
         gpiowrite_list.append(gpio)
         gpio.dir(mraa.DIR_OUT)
         gpio.write(0)
+        
+    set_isr(read_routine)
