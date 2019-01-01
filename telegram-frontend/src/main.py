@@ -149,7 +149,7 @@ def done(bot, update):
     return ConversationHandler.END
 
 def gates_sensor_handler(gpio):
-    pin = int(gpio.getPin(True))
+    pin = int(gpio.getPin())
     new_state  = gpio.read()
     gate = -1
     for i in range(len(c.GPIOREAD_LIST)):

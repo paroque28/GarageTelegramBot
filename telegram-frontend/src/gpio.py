@@ -60,7 +60,7 @@ if(c.DEVELOPER_COMPUTER != '64bit'):
         gpio = mraa.Gpio(GPIO)
         gpio.dir(mraa.DIR_IN)
         gpioread_list.append(gpio)
-        print(int(gpio.getPin(True)))
+        print(int(gpio.getPin()))
 
     # initialise gpio
     for GPIO in c.GPIOWRITE_LIST:
