@@ -42,7 +42,7 @@ def timer_close_gate(bot, num):
         count -= 1
         if(count == 0):
             count = c.MAX_TIME_WAIT
-            touch_button(num):
+            touch_button(num)
 
 
 
