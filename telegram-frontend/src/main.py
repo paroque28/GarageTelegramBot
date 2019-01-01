@@ -24,6 +24,7 @@ import os
 import logging
 import constants as c
 from pathlib import Path
+VERSION = 1.0
 home = str(Path.home())
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -63,7 +64,7 @@ def main_menu(bot, update, user_data):
         update.message.reply_text("Cual porton desea cerrar?", reply_markup=gate_choose)
         return c.CLOSE
     elif (text == "Timbre"):
-        touch_button(0)
+        gpio.touch_button(0)
         update.message.reply_text("Tocando el timbre..", reply_markup=markup_main)
         return c.MAIN
     elif (text == "Estado de los Portones"):
@@ -82,13 +83,15 @@ def main_menu(bot, update, user_data):
         update.message.reply_text(message, reply_markup=markup_main)
         return c.MAIN
     elif (text == "Subscripciones"):
-        update.message.reply_text('Subscribiendo...',
+        update.message.reply_text('Que desea hacer?',
         reply_markup=subscribe_main)
         return c.SUBSCRIBE
     else:
         return c.MAIN
     
-
+def main_return(update):
+    update.message.reply_text("Que desea hacer? ",
+        reply_markup=markup_main)
     return c.MAIN
 def cancelar(update):
     if(update.message.text == "Cancelar"):
@@ -119,20 +122,19 @@ def subscribe_menu(bot, update, user_data):
         update.message.reply_text("A cual porton desea desubscribirse?", reply_markup=all_gate_choose)
         return c.SELECT_UNSUBSCRIBE
     elif (text == "Ver subscripciones"):
-
-        update.message.reply_text("A cual porton desea desubscribirse?", reply_markup=all_gate_choose)
-        return c.MAIN
-    return c.MAIN
+        update.message.reply_text("Esta subscrito a ...")
+    return main_return(update)
 def select_subscribe(bot, update, user_data):
     text = update.message.text
     if(cancelar(update)):
         return c.MAIN
-    return c.MAIN
+    
+    return main_return(update)
 def select_unsubscribe(bot, update, user_data):
     text = update.message.text
     if(cancelar(update)):
         return c.MAIN
-    return c.MAIN
+    return main_return(update)
 def blocked_menu(bot, update):
     update.message.reply_text('Usted no esta autorizado')
     return c.MAIN
