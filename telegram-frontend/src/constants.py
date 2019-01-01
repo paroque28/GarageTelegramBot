@@ -3,7 +3,7 @@ import platform
 DEVELOPER_COMPUTER = platform.architecture()[0]
 # Developer tests token $env:TELEGRAM_TOKEN = "681248634:AAFxOsEz3yCTMlu9puVfhtOOEIugYElHL2A"
 # Debug:  0 : disabled, 1: debug info messages, 2: frequent debug messages (bad for logs), 3: super annoying logs
-DEBUG = 1
+DEBUG = 3
 # Foresee more doors
 NUM_GATES = 2
 TOTAL_SENSORS = 3
