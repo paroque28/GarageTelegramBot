@@ -166,6 +166,7 @@ def gates_sensor_handler(gpio):
             else:
                 bot.send_message(sub, text="Mensaje de subscripcion:\n Porton "+ str(gate) + " estado desconocido")
     else:
+        print(pin , new_state, gate)
         print("Error no encontro puerta")
 
 def error(bot, update, error):
