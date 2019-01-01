@@ -149,14 +149,19 @@ def done(bot, update):
     return ConversationHandler.END
 
 def gates_sensor_handler(gpio):
-    pin = int(gpio.getPin())
-    new_state  = gpio.read()
+    global bot
+    if(c.DEVELOPER_COMPUTER != '64bit'):
+        pin = int(gpio.getPin())
+        new_state  = gpio.read()
+    else:
+        pin = 45
+        new_state  = 1
     gate = -1
     for i in range(len(c.GPIOREAD_LIST)):
         if (pin == c.GPIOREAD_LIST[i]):
             gate = i
             break
-    if (gate >0):
+    if (gate >= 0 and bot != None):
         subscribers = db.get_subscribers(gate)
         for sub in  subscribers:
             if (new_state == c.OPEN_GPIO):
@@ -175,13 +180,14 @@ def error(bot, update, error):
 
 
 def main():
+    global bot
     #Read Token
     token = someVariable = os.environ['TELEGRAM_TOKEN']
     # Create the EventHandler and pass it your bot's token.
     updater = Updater(token, persistence=persistence)
-    bot = updater.bot
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
+    bot = dp.bot
     # Add conversation handler with the states c.MAIN, c.SUBSCRIBE
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
@@ -229,6 +235,7 @@ def main():
     updater.start_polling()
     #set isr function handler
     gpio.set_isr(gates_sensor_handler)
+    gates_sensor_handler(None)
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
