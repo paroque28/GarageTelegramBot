@@ -52,7 +52,7 @@ if(c.DEVELOPER_COMPUTER != '64bit'):
         gpio = mraa.Gpio(GPIO)
         gpio.dir(mraa.DIR_IN)
         gpioread_list.append(gpio)
-        gpio.isr(mraa.EDGE_BOTH, read_routine, gpio)
+        #gpio.isr(mraa.EDGE_BOTH, read_routine, gpio)
 
     # initialise gpio
     for GPIO in c.GPIOWRITE_LIST:
