@@ -10,7 +10,7 @@ gpioread_list = []
 def touch_button(index):
     if(c.DEVELOPER_COMPUTER != '64bit'):
         gpiowrite_list[index].write(1)
-        sleep(DELAY)
+        sleep(c.DELAY)
         gpiowrite_listp[index].write(0)
     else:
         print(index)
