@@ -34,21 +34,6 @@ def check_if_finished(update, num, desired_state, action_text, state_text):
             update.message.reply_text("Porton "+ text+ " no ha podido ser "+ state_text + " todavia!\nPor favor espere")
     update.message.reply_text("Porton "+ text+ " "+ state_text + "!")
 
-def timer_close_gate(bot, num):
-    text = str(num)
-    count = c.MAX_TIME_WAIT 
-    while(read_gpio(num) != c.CLOSED_GPIO):
-        sleep(1) # sleep 1 second
-        count -= 1
-        if(count == 0):
-            count = c.MAX_TIME*2
-            touch_button(num)
-            while(read_gpio(num) != c.CLOSED_GPIO):
-                sleep(1) # sleep 1 second
-                count -= 1
-                if(count == 0):
-                    count = c.MAX_TIME
-                    touch_button(num)
 
 
 
