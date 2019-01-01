@@ -200,7 +200,11 @@ def gates_sensor_handler(gpio):
         subscribers = db.get_subscribers(gate)
         if (new_state == c.OPEN_GPIO):
             send_to_subscribers(bot, subscribers, "Mensaje de subscripcion:\n Porton "+ str(gate) + " fue abierto")
-            Thread(target = timer_close_gate, args = (bot, gate, subscribers,)).start()
+            if (c.DEBUG>1):
+                print("start thread")
+            Thread(target = timer_close_gate, args = (bot, gate,)).start()
+            if (c.DEBUG>1):
+                print("started thread")
         elif (new_state == c.CLOSED_GPIO):
             send_to_subscribers(bot, subscribers, "Mensaje de subscripcion:\n Porton "+ str(gate) + " fue cerrado")
         else:
