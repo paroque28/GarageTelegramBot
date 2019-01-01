@@ -32,6 +32,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 persistence = PicklePersistence(filename=home+'/telegram/save_state')
+bot = None
 
 markup_main = ReplyKeyboardMarkup([['Abrir Porton','Cerrar Porton'],
                   ['Timbre','Estado de los Portones'],
@@ -76,10 +77,7 @@ def main_menu(bot, update, user_data):
                 state = "abierto"
             else:
                 state = "desconocido"
-            if(i == 0):
-                message += "Puerta principal en estado: " + state + "\n"
-            else: 
-                message += "Porton "+ str(i)+ " en estado: " + state + "\n"
+            message += "Porton "+ str(i)+ " en estado: " + state + "\n"
         update.message.reply_text(message, reply_markup=markup_main)
         return c.MAIN
     elif (text == "Subscripciones"):
@@ -122,18 +120,25 @@ def subscribe_menu(bot, update, user_data):
         update.message.reply_text("A cual porton desea desubscribirse?", reply_markup=all_gate_choose)
         return c.SELECT_UNSUBSCRIBE
     elif (text == "Ver subscripciones"):
-        update.message.reply_text("Esta subscrito a ...")
+        subscriptions = db.get_subscribtions(update.effective_user.id)
+        message = "Esta subscrito a: \n"
+        for sub in subscriptions:
+            message += "Porton "+ str(sub) + "\n"
+        update.message.reply_text(message)
     return main_return(update)
 def select_subscribe(bot, update, user_data):
     text = update.message.text
     if(cancelar(update)):
         return c.MAIN
-    
+    db.subscribe(update.effective_user.id, int(text))
+    update.message.reply_text("Ya esta subscrito a " + text)
     return main_return(update)
 def select_unsubscribe(bot, update, user_data):
     text = update.message.text
     if(cancelar(update)):
         return c.MAIN
+    db.unsubscribe(update.effective_user.id, int(text))
+    update.message.reply_text("Ya esta desuscrito a " + text)
     return main_return(update)
 def blocked_menu(bot, update):
     update.message.reply_text('Usted no esta autorizado')
@@ -143,6 +148,25 @@ def done(bot, update):
     user_data.clear()
     return ConversationHandler.END
 
+def gates_sensor_handler(gpio):
+    pin = int(gpio.getPin(True))
+    new_state  = gpio.read()
+    gate = -1
+    for i in range(len(c.GPIOREAD_LIST)):
+        if (pin == c.GPIOREAD_LIST[i]):
+            gate = i
+            break
+    if (gate >0):
+        subscribers = db.get_subscribers(gate)
+        for sub in  subscribers:
+            if (new_state == c.OPEN_GPIO):
+                bot.send_message(sub, text="Mensaje de subscripcion:\n Porton "+ str(gate) + " fue abierto")
+            elif (new_state == c.CLOSED_GPIO):
+                bot.send_message(sub, text="Mensaje de subscripcion:\n Porton "+ str(gate) + " fue cerrado")
+            else:
+                bot.send_message(sub, text="Mensaje de subscripcion:\n Porton "+ str(gate) + " estado desconocido")
+    else:
+        print("Error no encontro puerta")
 
 def error(bot, update, error):
     """Log Errors caused by Updates."""
@@ -154,6 +178,7 @@ def main():
     token = someVariable = os.environ['TELEGRAM_TOKEN']
     # Create the EventHandler and pass it your bot's token.
     updater = Updater(token, persistence=persistence)
+    bot = updater.bot
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
     # Add conversation handler with the states c.MAIN, c.SUBSCRIBE
@@ -201,7 +226,8 @@ def main():
 
     # Start the Bot
     updater.start_polling()
-
+    #set isr function handler
+    gpio.set_isr(gates_sensor_handler)
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.

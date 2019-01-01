@@ -28,7 +28,7 @@ def get_authorized_users():
         return auth
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-
+#TODO: logic in query
 def get_authorized(id):
     try:
         cur = conn.cursor()
@@ -84,3 +84,46 @@ def subscribe(user_id, gate_id):
         else:  
             print("Already subscribed: "+ str(user_id)+ " with gate: "+ str(gate_id))
     return created
+def unsubscribe(user_id, gate_id):
+    sql = """DELETE FROM public.subscriptions WHERE user_id=%s AND  gate_id=%s"""
+    created = False
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT 1 FROM subscriptions WHERE user_id =" + str(user_id) + " AND gate_id ="+ str(gate_id))
+        if cur.fetchone():
+            cur.execute(sql, (user_id, gate_id))
+            conn.commit()
+            created = True
+        else:
+            created =  False
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    if(c.DEBUG>0):
+        if created:
+            print("Unsubscribed: "+ str(user_id)+ " with gate: "+ str(gate_id))
+        else:  
+            print("Already unsubscribed: "+ str(user_id)+ " with gate: "+ str(gate_id))
+    return created
+
+def get_subscribers(gate_id):
+    try:
+        cur = conn.cursor()
+        auth = []
+        cur.execute("""SELECT user_id FROM subscriptions WHERE gate_id = %s""", (gate_id,))
+        result = list(iter_row(cur))
+        cur.close()
+        return [item for sublist in result for item in sublist]
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+
+def get_subscribtions(user_id):
+    try:
+        cur = conn.cursor()
+        auth = []
+        cur.execute("""SELECT gate_id FROM subscriptions WHERE user_id = %s""", (user_id,))
+        result = list(iter_row(cur))
+        cur.close()
+        return [item for sublist in result for item in sublist]
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)

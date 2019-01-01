@@ -67,5 +67,3 @@ if(c.DEVELOPER_COMPUTER != '64bit'):
         gpiowrite_list.append(gpio)
         gpio.dir(mraa.DIR_OUT)
         gpio.write(0)
-        
-    set_isr(read_routine)
