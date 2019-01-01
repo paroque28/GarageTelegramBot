@@ -48,14 +48,14 @@ def open_close_routine(update, num,desired_state, action_text, state_text):
     return c.MAIN 
 
 if(c.DEVELOPER_COMPUTER != '64bit'):
-    for c.GPIO in c.GPIOREAD_LIST:
+    for GPIO in c.GPIOREAD_LIST:
         gpio = mraa.Gpio(GPIO)
         gpio.dir(mraa.DIR_IN)
         gpioread_list.append(gpio)
         gpio.isr(mraa.EDGE_BOTH, read_routine, gpio)
 
     # initialise gpio
-    for c.GPIO in c.GPIOWRITE_LIST:
+    for GPIO in c.GPIOWRITE_LIST:
         gpio = mraa.Gpio(GPIO)
         gpiowrite_list.append(gpio)
         gpio.dir(mraa.DIR_OUT)
