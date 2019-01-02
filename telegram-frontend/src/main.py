@@ -155,23 +155,21 @@ def send_to_subscribers(bot, subscribers, text):
          bot.send_message(sub, text=text)
 
 def timer_close_gate(bot, num):
-    if (c.DEBUG>2):
-        print("Timer initialized")
-    count = c.MAX_TIME_WAIT 
+    count = c.MAX_TIME_WAIT*4 # counting each 15 seconds
     while(gpio.read_gpio(num) != c.CLOSED_GPIO):
-        sleep(1) # sleep 1 second
+        sleep(15) # sleep 15 seconds
         count -= 1
         if(count == 0):
             count = c.MAX_TIME*2
             subscribers = db.get_subscribers(num)
-            send_to_subscribers(bot, subscribers, "Porton " + str(num) + " sigue abierto luego de " + str(c.MAX_TIME_WAIT) + " minutos")
+            send_to_subscribers(bot, subscribers, "Alerta: Porton " + str(num) + " sigue abierto luego de " + str(c.MAX_TIME_WAIT) + " minutos")
             while(gpio.read_gpio(num) != c.CLOSED_GPIO):
                 sleep(1) # sleep 1 second
                 count -= 1
                 if(count == 0):
                     count = c.MAX_TIME
                     subscribers = db.get_subscribers(num)
-                    send_to_subscribers(bot, subscribers, "Porton " + str(num) + " sigue abierto!!")
+                    send_to_subscribers(bot, subscribers, "Alerta: Porton " + str(num) + " sigue abierto!!")
 
 def gates_sensor_handler(gpio):
     global bot
@@ -189,12 +187,12 @@ def gates_sensor_handler(gpio):
     if (gate >= 0 and bot != None):
         subscribers = db.get_subscribers(gate)
         if (new_state == c.OPEN_GPIO):
-            send_to_subscribers(bot, subscribers, "Mensaje de subscripcion:\n Porton "+ str(gate) + " fue abierto")
+            send_to_subscribers(bot, subscribers, "Informacion: Porton "+ str(gate) + " fue abierto")
             Thread(target = timer_close_gate, args = (bot, gate,)).start()
         elif (new_state == c.CLOSED_GPIO):
-            send_to_subscribers(bot, subscribers, "Mensaje de subscripcion:\n Porton "+ str(gate) + " fue cerrado")
+            send_to_subscribers(bot, subscribers, "Informacion: Porton "+ str(gate) + " fue cerrado")
         else:
-            send_to_subscribers(bot, subscribers, "Mensaje de subscripcion:\n Porton "+ str(gate) + " estado desconocido")
+            send_to_subscribers(bot, subscribers, "Informacion: Porton "+ str(gate) + " estado desconocido")
     else:
         print(pin , new_state, gate)
         print("Error no encontro puerta")

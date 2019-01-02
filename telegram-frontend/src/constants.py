@@ -11,7 +11,7 @@ TOTAL_RELAYS = 3
 # Max wating time for open/ close operations
 MAX_TIME = 30
 # Max wating time for close operations
-MAX_TIME_WAIT = 10
+MAX_TIME_WAIT = 2
 # States for Telegram logic
 MAIN, OPEN, CLOSE, SUBSCRIBE, SELECT_SUBSCRIBE, SELECT_UNSUBSCRIBE, END, BLOCKED = range(8)
 # Delay on amount time relay is on
