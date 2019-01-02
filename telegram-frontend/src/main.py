@@ -162,18 +162,13 @@ def timer_close_gate(bot, num):
         sleep(1) # sleep 1 second
         count -= 1
         if(count == 0):
-            if (c.DEBUG>1):
             count = c.MAX_TIME*2
             subscribers = db.get_subscribers(gate)
             send_to_subscribers(bot, subscribers, "Porton " + str(num) + " sigue abierto luego de " + str(c.MAX_TIME_WAIT) + " minutos")
             while(gpio.read_gpio(num) != c.CLOSED_GPIO):
-                if (c.DEBUG>2):
-                    print("Counting again")
                 sleep(1) # sleep 1 second
                 count -= 1
                 if(count == 0):
-                    if (c.DEBUG>2):
-                        print("Timer time's up again")
                     count = c.MAX_TIME
                     subscribers = db.get_subscribers(gate)
                     send_to_subscribers(bot, subscribers, "Porton " + str(num) + " sigue abierto!!")
