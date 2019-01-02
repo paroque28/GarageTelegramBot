@@ -25,6 +25,7 @@ import logging
 import constants as c
 from pathlib import Path
 from threading import Thread
+from time import sleep
 VERSION = 1.0
 home = str(Path.home())
 # Enable logging
