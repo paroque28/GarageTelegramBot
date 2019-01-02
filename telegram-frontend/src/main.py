@@ -163,14 +163,14 @@ def timer_close_gate(bot, num):
         count -= 1
         if(count == 0):
             count = c.MAX_TIME*2
-            subscribers = db.get_subscribers(gate)
+            subscribers = db.get_subscribers(num)
             send_to_subscribers(bot, subscribers, "Porton " + str(num) + " sigue abierto luego de " + str(c.MAX_TIME_WAIT) + " minutos")
             while(gpio.read_gpio(num) != c.CLOSED_GPIO):
                 sleep(1) # sleep 1 second
                 count -= 1
                 if(count == 0):
                     count = c.MAX_TIME
-                    subscribers = db.get_subscribers(gate)
+                    subscribers = db.get_subscribers(num)
                     send_to_subscribers(bot, subscribers, "Porton " + str(num) + " sigue abierto!!")
 
 def gates_sensor_handler(gpio):
