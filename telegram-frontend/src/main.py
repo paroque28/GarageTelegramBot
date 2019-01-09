@@ -82,7 +82,7 @@ def main_menu(bot, update, user_data):
             message += "Porton "+ str(i)+ " en estado: " + state + "\n"
         update.message.reply_text(message, reply_markup=markup_main)
         return c.MAIN
-    elif (text == "Subscripciones"):
+    elif (text == "Suscripciones"):
         update.message.reply_text('Que desea hacer?',
         reply_markup=subscribe_main)
         return c.SUBSCRIBE
