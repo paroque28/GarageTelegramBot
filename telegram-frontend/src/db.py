@@ -159,7 +159,7 @@ def add_event(event_id, gate_id):
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     if(c.DEBUG>1):
-        print("Event logged id: "+ str(event_id) +  " gate "  str(gate_id))
+        print("Event logged id: "+ str(event_id) +  " gate " + str(gate_id))
 def get_events(num):
     conn = get_connection()
     try:
