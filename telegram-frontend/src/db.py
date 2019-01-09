@@ -165,7 +165,7 @@ def get_events(num):
     try:
         cur = conn.cursor()
         auth = []
-        cur.execute("""SELECT gate_id, event_id, logged_time FROM subscriptions ORDER BY logged_time DESC LIMIT %s""", (num,))
+        cur.execute("""SELECT event_id, gate_id, logged_time FROM events ORDER BY logged_time DESC LIMIT %s""", (num,))
         result = list(iter_row(cur))
         cur.close()
         conn.close()
