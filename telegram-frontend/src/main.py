@@ -86,7 +86,7 @@ def main_menu(bot, update, user_data):
         update.message.reply_text('Que desea hacer?',
         reply_markup=subscribe_main)
         return c.SUBSCRIBE
-    elif (text == "Ultimos 10 eventos")
+    elif (text == "Ultimos 10 eventos"):
         print(db.get_events(10))
         update.message.reply_text('Que desea hacer?', reply_markup=markup_main)
         return c.MAIN
