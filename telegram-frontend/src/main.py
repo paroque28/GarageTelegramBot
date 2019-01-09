@@ -38,7 +38,7 @@ bot = None
 
 markup_main = ReplyKeyboardMarkup([['Abrir Porton','Cerrar Porton'],
                   ['Timbre','Estado de los Portones'],
-                  ['Suscripciones']], one_time_keyboard=True)
+                  ['Suscripciones', 'Ultimos 10 eventos']], one_time_keyboard=True)
 subscribe_main = ReplyKeyboardMarkup([['Ver suscripciones'],
                   ['Suscribirse','Desuscribirse'], ["Volver"]], one_time_keyboard=True)
 gate_choose = ReplyKeyboardMarkup([list(map(str, range(1,c.NUM_GATES+1))),["Cancelar"]], one_time_keyboard=True)
@@ -86,6 +86,10 @@ def main_menu(bot, update, user_data):
         update.message.reply_text('Que desea hacer?',
         reply_markup=subscribe_main)
         return c.SUBSCRIBE
+    elif (text == "Ultimos 10 eventos")
+        print(db.get_events(10))
+        update.message.reply_text('Que desea hacer?', reply_markup=markup_main)
+        return c.MAIN
     else:
         return c.MAIN
     
@@ -229,7 +233,7 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            c.MAIN: [RegexHandler('^(Abrir Porton|Cerrar Porton|Timbre|Estado de los Portones|Suscripciones)$',
+            c.MAIN: [RegexHandler('^(Abrir Porton|Cerrar Porton|Timbre|Estado de los Portones|Suscripciones|Ultimos 10 eventos)$',
                                     main_menu,
                                     pass_user_data=True),
                        ],

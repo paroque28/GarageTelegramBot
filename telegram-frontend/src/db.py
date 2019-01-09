@@ -2,6 +2,7 @@ import psycopg2
 import os
 import constants as c
 
+conn = None
 def connect():
     try:
         print('Connecting to the PostgreSQL database...')
@@ -10,7 +11,7 @@ def connect():
         print(error)
 
 def check_connection():
-    if (conn.closed):
+    if (conn == None or conn.closed):
         connect()
 
 def iter_row(cursor, size=100):
@@ -143,6 +144,16 @@ def add_event(id_event):
         print(error)
     if(c.DEBUG>1):
         print("Event logged id: "+ str(id_event))
+def get_events(num):
+    try:
+        cur = conn.cursor()
+        auth = []
+        cur.execute("""SELECT gate_id, event_id, logged_time FROM subscriptions ORDER BY logged_time DESC LIMIT %s""", (num,))
+        result = list(iter_row(cur))
+        cur.close()
+        return result
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
 
 
 connect()
