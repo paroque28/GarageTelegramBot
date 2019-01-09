@@ -152,7 +152,7 @@ def add_event(id_event):
     sql = """INSERT INTO events(id) VALUES (%s)"""
     try:
         cur = conn.cursor()
-        cur.execute(sql, (id_event))
+        cur.execute(sql, (id_event,))
         conn.commit()
         cur.close()
         conn.close()
