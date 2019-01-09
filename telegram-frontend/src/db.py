@@ -2,11 +2,8 @@ import psycopg2
 import os
 import constants as c
 
-conn = None
 def connect():
-    global conn
     try:
-        print('Connecting to the PostgreSQL database...')
         conn = psycopg2.connect(host=os.environ["POSTGRES_HOST"],database="postgres", user="postgres", password=os.environ["POSTGRES_PASSWORD"])
         return conn
     except (Exception, psycopg2.DatabaseError) as error:
@@ -14,11 +11,7 @@ def connect():
         return None
 
 def get_connection():
-    global conn
-    if (conn == None or conn.closed):
         return connect()
-    else:
-        return conn
 
 def iter_row(cursor, size=100):
     while True:
@@ -38,6 +31,7 @@ def get_authorized_users():
                     if (row[1]):
                         auth.append(row[0])
         cur.close()
+        conn.close()
         return auth
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -49,9 +43,11 @@ def get_authorized(id):
         cur.execute("SELECT 1 FROM users WHERE id ="+ str(id)+" AND authorized = true")
         if not cur.fetchone():
             cur.close()
+            conn.close()
             return False
         else:
             cur.close()
+            conn.close()
             return True
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -69,6 +65,7 @@ def add_user(id, username, name):
         else:
             created =  False
         cur.close()
+        conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     if(c.DEBUG>0):
@@ -92,6 +89,7 @@ def subscribe(user_id, gate_id, typed):
         else:
             created =  False
         cur.close()
+        conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     if(c.DEBUG>0):
@@ -114,6 +112,7 @@ def unsubscribe(user_id, gate_id):
         else:
             created =  False
         cur.close()
+        conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     if(c.DEBUG>0):
@@ -131,6 +130,7 @@ def get_subscribers(gate_id):
         cur.execute("""SELECT user_id FROM subscriptions WHERE gate_id = %s""", (gate_id,))
         result = list(iter_row(cur))
         cur.close()
+        conn.close()
         return [item for sublist in result for item in sublist]
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -140,9 +140,10 @@ def get_subscribtions(user_id):
     try:
         cur = conn.cursor()
         auth = []
-        cur.execute("""SELECT gate_id FROM subscriptions WHERE user_id = %s""", (user_id,))
+        cur.execute("""SELECT gate_id FROM subscriptions WHERE user_id = %s ORDER BY gate_id""", (user_id,))
         result = list(iter_row(cur))
         cur.close()
+        conn.close()
         return [item for sublist in result for item in sublist]
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -154,6 +155,7 @@ def add_event(id_event):
         cur.execute(sql, (id_event))
         conn.commit()
         cur.close()
+        conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     if(c.DEBUG>1):
@@ -166,6 +168,7 @@ def get_events(num):
         cur.execute("""SELECT gate_id, event_id, logged_time FROM subscriptions ORDER BY logged_time DESC LIMIT %s""", (num,))
         result = list(iter_row(cur))
         cur.close()
+        conn.close()
         return result
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
