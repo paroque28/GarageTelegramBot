@@ -2,11 +2,16 @@ import psycopg2
 import os
 import constants as c
 
-try:
-    print('Connecting to the PostgreSQL database...')
-    conn = psycopg2.connect(host=os.environ["POSTGRES_HOST"],database="postgres", user="postgres", password=os.environ["POSTGRES_PASSWORD"])
-except (Exception, psycopg2.DatabaseError) as error:
-    print(error)
+def connect():
+    try:
+        print('Connecting to the PostgreSQL database...')
+        conn = psycopg2.connect(host=os.environ["POSTGRES_HOST"],database="postgres", user="postgres", password=os.environ["POSTGRES_PASSWORD"])
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+
+def check_connection():
+    if (conn.closed):
+        connect()
 
 def iter_row(cursor, size=100):
     while True:
@@ -63,14 +68,14 @@ def add_user(id, username, name):
             print("Already registered: "+ username+ " with id: "+ str(id))
     return created
 
-def subscribe(user_id, gate_id):
-    sql = """INSERT INTO public.subscriptions(user_id, gate_id) VALUES (%s, %s)"""
+def subscribe(user_id, gate_id, typed):
+    sql = """INSERT INTO public.subscriptions(user_id, gate_id, type) VALUES (%s, %s, %s)"""
     created = False
     try:
         cur = conn.cursor()
         cur.execute("SELECT 1 FROM subscriptions WHERE user_id =" + str(user_id) + " AND gate_id ="+ str(gate_id))
         if not cur.fetchone():
-            cur.execute(sql, (user_id, gate_id))
+            cur.execute(sql, (user_id, gate_id, typed))
             conn.commit()
             created = True
         else:
@@ -80,7 +85,7 @@ def subscribe(user_id, gate_id):
         print(error)
     if(c.DEBUG>0):
         if created:
-            print("Subscribed: "+ str(user_id)+ " with gate: "+ str(gate_id))
+            print("Subscribed: "+ str(user_id)+ " with gate: "+ str(gate_id) +" with type " +typed)
         else:  
             print("Already subscribed: "+ str(user_id)+ " with gate: "+ str(gate_id))
     return created
@@ -127,3 +132,17 @@ def get_subscribtions(user_id):
         return [item for sublist in result for item in sublist]
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
+def add_event(id_event):
+    sql = """INSERT INTO events(id) VALUES (%s)"""
+    try:
+        cur = conn.cursor()
+        cur.execute(sql, (id_event))
+        conn.commit()
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    if(c.DEBUG>1):
+        print("Event logged id: "+ str(id_event))
+
+
+connect()

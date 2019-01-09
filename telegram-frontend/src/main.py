@@ -38,9 +38,9 @@ bot = None
 
 markup_main = ReplyKeyboardMarkup([['Abrir Porton','Cerrar Porton'],
                   ['Timbre','Estado de los Portones'],
-                  ['Subscripciones']], one_time_keyboard=True)
-subscribe_main = ReplyKeyboardMarkup([['Ver subscripciones'],
-                  ['Subscribirse','Desubscribirse'], ["Volver"]], one_time_keyboard=True)
+                  ['Suscripciones']], one_time_keyboard=True)
+subscribe_main = ReplyKeyboardMarkup([['Ver suscripciones'],
+                  ['Suscribirse','Desuscribirse'], ["Volver"]], one_time_keyboard=True)
 gate_choose = ReplyKeyboardMarkup([list(map(str, range(1,c.NUM_GATES+1))),["Cancelar"]], one_time_keyboard=True)
 all_gate_choose = ReplyKeyboardMarkup([list(map(str, range(0,c.NUM_GATES+1))),["Cancelar"]], one_time_keyboard=True)
 
@@ -115,25 +115,26 @@ def close_gate(bot, update, user_data):
 
 def subscribe_menu(bot, update, user_data):
     text = update.message.text
-    if (text == "Subscribirse"):
-        update.message.reply_text("A cual porton desea subscribirse?", reply_markup=all_gate_choose)
+    if (text == "Suscribirse"):
+        update.message.reply_text("A cual porton desea suscribirse?", reply_markup=all_gate_choose)
         return c.SELECT_SUBSCRIBE
-    elif (text == "Desubscribirse"):
-        update.message.reply_text("A cual porton desea desubscribirse?", reply_markup=all_gate_choose)
+    elif (text == "Desuscribirse"):
+        update.message.reply_text("A cual porton desea desuscribirse?", reply_markup=all_gate_choose)
         return c.SELECT_UNSUBSCRIBE
-    elif (text == "Ver subscripciones"):
+    elif (text == "Ver suscripciones"):
         subscriptions = db.get_subscribtions(update.effective_user.id)
-        message = "Esta subscrito a: \n"
-        for sub in subscriptions:
-            message += "Porton "+ str(sub) + "\n"
+        message = "Esta suscrito a: \n"
+        if(subscriptions != None):
+            for sub in subscriptions:
+                message += "Porton "+ str(sub) + "\n"
         update.message.reply_text(message)
     return main_return(update)
 def select_subscribe(bot, update, user_data):
     text = update.message.text
     if(cancelar(update)):
         return c.MAIN
-    db.subscribe(update.effective_user.id, int(text))
-    update.message.reply_text("Ya esta subscrito a " + text)
+    db.subscribe(update.effective_user.id, int(text), "all")
+    update.message.reply_text("Ya esta suscrito a " + text)
     return main_return(update)
 def select_unsubscribe(bot, update, user_data):
     text = update.message.text
@@ -155,21 +156,33 @@ def send_to_subscribers(bot, subscribers, text):
          bot.send_message(sub, text=text)
 
 def timer_close_gate(bot, num):
-    count = c.MAX_TIME_WAIT*4 # counting each 15 seconds
-    while(gpio.read_gpio(num) != c.CLOSED_GPIO):
+    count = 0
+    ## First: wait MAX_TIME_WAIT minutes
+    for i in range (c.MAX_TIME_WAIT*4):
         sleep(15) # sleep 15 seconds
-        count -= 1
-        if(count == 0):
-            count = c.MAX_TIME*2
-            subscribers = db.get_subscribers(num)
-            send_to_subscribers(bot, subscribers, "Alerta: Porton " + str(num) + " sigue abierto luego de " + str(c.MAX_TIME_WAIT) + " minutos")
-            while(gpio.read_gpio(num) != c.CLOSED_GPIO):
-                sleep(1) # sleep 1 second
-                count -= 1
-                if(count == 0):
-                    count = c.MAX_TIME
-                    subscribers = db.get_subscribers(num)
-                    send_to_subscribers(bot, subscribers, "Alerta: Porton " + str(num) + " sigue abierto!!")
+        count +=15
+        if(gpio.read_gpio(num) == c.CLOSED_GPIO):
+            return count
+    # Send First Alert
+    subscribers = db.get_subscribers(num)
+    send_to_subscribers(bot, subscribers, "Alerta: Porton " + str(num) + " sigue abierto luego de " + str(count/4) + " minutos")
+    
+    
+    ## Second: Wait each DELAY_ALERT minutes to send MAX_ALERT_MESSAGES alert messages each  MAX_TIME seconds
+    while(gpio.read_gpio(num) != c.CLOSED_GPIO):
+        for i in range(c.DELAY_ALERT*4):
+            sleep(15)
+            count +=15
+            if(gpio.read_gpio(num) == c.CLOSED_GPIO):
+                return count
+            for i in range(c.MAX_ALERT_MESSAGES):
+                send_to_subscribers(bot, subscribers, "Alerta: Porton " + str(num) + " sigue abierto luego de " + str(count/4) + " minutos!!!!")
+                sleep(c.MAX_TIME)
+                count += c.MAX_TIME
+                if(gpio.read_gpio(num) == c.CLOSED_GPIO):
+                    return count
+    return count
+
 
 def gates_sensor_handler(gpio):
     global bot
@@ -184,6 +197,7 @@ def gates_sensor_handler(gpio):
         if (pin == c.GPIOREAD_LIST[i]):
             gate = i
             break
+    db.add_event(gate)
     if (gate >= 0 and bot != None):
         subscribers = db.get_subscribers(gate)
         if (new_state == c.OPEN_GPIO):
@@ -215,7 +229,7 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            c.MAIN: [RegexHandler('^(Abrir Porton|Cerrar Porton|Timbre|Estado de los Portones|Subscripciones)$',
+            c.MAIN: [RegexHandler('^(Abrir Porton|Cerrar Porton|Timbre|Estado de los Portones|Suscripciones)$',
                                     main_menu,
                                     pass_user_data=True),
                        ],
@@ -227,7 +241,7 @@ def main():
                                     close_gate,
                                     pass_user_data=True),
                        ],
-            c.SUBSCRIBE: [RegexHandler('^(Ver subscripciones|Subscribirse|Desubscribirse|Volver)$',
+            c.SUBSCRIBE: [RegexHandler('^(Ver suscripciones|Suscribirse|Desuscribirse|Volver)$',
                                            subscribe_menu,
                                            pass_user_data=True),
                             ],
