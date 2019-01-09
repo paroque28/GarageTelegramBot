@@ -4,15 +4,21 @@ import constants as c
 
 conn = None
 def connect():
+    global conn
     try:
         print('Connecting to the PostgreSQL database...')
         conn = psycopg2.connect(host=os.environ["POSTGRES_HOST"],database="postgres", user="postgres", password=os.environ["POSTGRES_PASSWORD"])
+        return conn
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
+        return None
 
-def check_connection():
+def get_connection():
+    global conn
     if (conn == None or conn.closed):
-        connect()
+        return connect()
+    else:
+        return conn
 
 def iter_row(cursor, size=100):
     while True:
@@ -23,6 +29,7 @@ def iter_row(cursor, size=100):
             yield row
 
 def get_authorized_users():
+    conn = get_connection()
     try:
         cur = conn.cursor()
         auth = []
@@ -36,6 +43,7 @@ def get_authorized_users():
         print(error)
 #TODO: logic in query
 def get_authorized(id):
+    conn = get_connection()
     try:
         cur = conn.cursor()
         cur.execute("SELECT 1 FROM users WHERE id ="+ str(id)+" AND authorized = true")
@@ -48,6 +56,7 @@ def get_authorized(id):
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
 def add_user(id, username, name):
+    conn = get_connection()
     sql = """INSERT INTO users(id, username, name, authorized, role) VALUES (%s, %s, %s, false, 'stranger')"""
     created = False
     try:
@@ -70,6 +79,7 @@ def add_user(id, username, name):
     return created
 
 def subscribe(user_id, gate_id, typed):
+    conn = get_connection()
     sql = """INSERT INTO public.subscriptions(user_id, gate_id, type) VALUES (%s, %s, %s)"""
     created = False
     try:
@@ -91,6 +101,7 @@ def subscribe(user_id, gate_id, typed):
             print("Already subscribed: "+ str(user_id)+ " with gate: "+ str(gate_id))
     return created
 def unsubscribe(user_id, gate_id):
+    conn = get_connection()
     sql = """DELETE FROM public.subscriptions WHERE user_id=%s AND  gate_id=%s"""
     created = False
     try:
@@ -113,6 +124,7 @@ def unsubscribe(user_id, gate_id):
     return created
 
 def get_subscribers(gate_id):
+    conn = get_connection()
     try:
         cur = conn.cursor()
         auth = []
@@ -124,6 +136,7 @@ def get_subscribers(gate_id):
         print(error)
 
 def get_subscribtions(user_id):
+    conn = get_connection()
     try:
         cur = conn.cursor()
         auth = []
@@ -134,6 +147,7 @@ def get_subscribtions(user_id):
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
 def add_event(id_event):
+    conn = get_connection()
     sql = """INSERT INTO events(id) VALUES (%s)"""
     try:
         cur = conn.cursor()
@@ -145,6 +159,7 @@ def add_event(id_event):
     if(c.DEBUG>1):
         print("Event logged id: "+ str(id_event))
 def get_events(num):
+    conn = get_connection()
     try:
         cur = conn.cursor()
         auth = []
@@ -154,6 +169,3 @@ def get_events(num):
         return result
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-
-
-connect()
