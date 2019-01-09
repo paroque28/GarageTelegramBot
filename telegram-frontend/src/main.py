@@ -99,7 +99,7 @@ def main_menu(bot, update, user_data):
                     state = "abierto"
                 else:
                     state = "desconocido"
-                message += "Porton: " + str(event[1]) + " " + state + " " + event[2].astimezone(timezone('America/Costa_Rica')).strftime("%Y-%m-%d %H:%M:%S %Z%z") + "\n"
+                message += "Porton: " + str(event[1]) + " " + state + " " + event[2].astimezone(timezone('America/Costa_Rica')).strftime("%d %b %I:%M %p") + "\n"
             update.message.reply_text(message)
         update.message.reply_text('Que desea hacer?', reply_markup=markup_main)
         return c.MAIN
@@ -182,7 +182,7 @@ def timer_close_gate(bot, num):
             return count
     # Send First Alert
     subscribers = db.get_subscribers(num)
-    send_to_subscribers(bot, subscribers, "Alerta: Porton " + str(num) + " sigue abierto luego de " + str(count/4) + " minutos")
+    send_to_subscribers(bot, subscribers, "Alerta: Porton " + str(num) + " sigue abierto luego de " + str(count/60) + " minutos")
     
     
     ## Second: Wait each DELAY_ALERT minutes to send MAX_ALERT_MESSAGES alert messages each  MAX_TIME seconds
@@ -193,7 +193,7 @@ def timer_close_gate(bot, num):
             if(gpio.read_gpio(num) == c.CLOSED_GPIO):
                 return count
             for i in range(c.MAX_ALERT_MESSAGES):
-                send_to_subscribers(bot, subscribers, "Alerta: Porton " + str(num) + " sigue abierto luego de " + str(count/4) + " minutos!!!!")
+                send_to_subscribers(bot, subscribers, "Alerta: Porton " + str(num) + " sigue abierto luego de " + str(count/60) + " minutos!!!!")
                 sleep(c.MAX_TIME)
                 count += c.MAX_TIME
                 if(gpio.read_gpio(num) == c.CLOSED_GPIO):
