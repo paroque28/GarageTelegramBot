@@ -148,8 +148,6 @@ def get_subscribtions(user_id):
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
 def add_event(event_id, gate_id):
-    if(c.DEBUG>0):
-        print("Event loggin id: "+ str(event_id) +  " gate "  str(gate_id))
     conn = get_connection()
     sql = """INSERT INTO public.events(event_id, gate_id) VALUES (%s, %s)"""
     try:
@@ -160,7 +158,7 @@ def add_event(event_id, gate_id):
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-    if(c.DEBUG>0):
+    if(c.DEBUG>1):
         print("Event logged id: "+ str(event_id) +  " gate "  str(gate_id))
 def get_events(num):
     conn = get_connection()

@@ -226,7 +226,7 @@ def gates_sensor_handler(gpio):
     else:
         print(pin , new_state, gate)
         print("Error no encontro puerta")
-    db.add_event(gate)
+    db.add_event(new_state, gate)
 
 def error(bot, update, error):
     """Log Errors caused by Updates."""
