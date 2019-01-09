@@ -26,6 +26,8 @@ import constants as c
 from pathlib import Path
 from threading import Thread
 from time import sleep
+from datetime import datetime
+from pytz import timezone
 VERSION = 1.0
 home = str(Path.home())
 # Enable logging
@@ -87,7 +89,18 @@ def main_menu(bot, update, user_data):
         reply_markup=subscribe_main)
         return c.SUBSCRIBE
     elif (text == "Ultimos 10 eventos"):
-        print(db.get_events(10))
+        events = db.get_events(10)
+        if ( events != None):
+            message = ""
+            for event in events:
+                if(event[0] == c.CLOSED_GPIO):
+                    state = "cerrado"
+                elif(event[0] == c.OPEN_GPIO):
+                    state = "abierto"
+                else:
+                    state = "desconocido"
+                message += "Porton: " + str(event[1]) + " " + state + " " + unicode(event[2].astimezone(timezone('America/Costa_Rica'))) + "\n"
+            update.message.reply_text(message)
         update.message.reply_text('Que desea hacer?', reply_markup=markup_main)
         return c.MAIN
     else:

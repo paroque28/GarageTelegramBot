@@ -147,12 +147,12 @@ def get_subscribtions(user_id):
         return [item for sublist in result for item in sublist]
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-def add_event(id_event):
+def add_event(event_id, gate_id):
     conn = get_connection()
-    sql = """INSERT INTO events(id) VALUES (%s)"""
+    sql = """INSERT INTO events(event_id, gate_id) VALUES (%s)"""
     try:
         cur = conn.cursor()
-        cur.execute(sql, (id_event,))
+        cur.execute(sql, (event_id,gate_id))
         conn.commit()
         cur.close()
         conn.close()
