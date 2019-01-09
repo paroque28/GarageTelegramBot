@@ -214,7 +214,6 @@ def gates_sensor_handler(gpio):
         if (pin == c.GPIOREAD_LIST[i]):
             gate = i
             break
-    db.add_event(gate)
     if (gate >= 0 and bot != None):
         subscribers = db.get_subscribers(gate)
         if (new_state == c.OPEN_GPIO):
@@ -227,6 +226,7 @@ def gates_sensor_handler(gpio):
     else:
         print(pin , new_state, gate)
         print("Error no encontro puerta")
+    db.add_event(gate)
 
 def error(bot, update, error):
     """Log Errors caused by Updates."""

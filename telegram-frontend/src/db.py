@@ -149,10 +149,10 @@ def get_subscribtions(user_id):
         print(error)
 def add_event(event_id, gate_id):
     conn = get_connection()
-    sql = """INSERT INTO events(event_id, gate_id) VALUES (%s)"""
+    sql = """INSERT INTO events(event_id, gate_id) VALUES (%s, %s)"""
     try:
         cur = conn.cursor()
-        cur.execute(sql, (event_id,gate_id))
+        cur.execute(sql, (event_id,gate_id, ))
         conn.commit()
         cur.close()
         conn.close()
