@@ -99,7 +99,7 @@ def main_menu(bot, update, user_data):
                     state = "abierto"
                 else:
                     state = "desconocido"
-                message += "Porton: " + str(event[1]) + " " + state + " " + unicode(event[2].astimezone(timezone('America/Costa_Rica'))) + "\n"
+                message += "Porton: " + str(event[1]) + " " + state + " " + event[2].astimezone(timezone('America/Costa_Rica')).strftime("%Y-%m-%d %H:%M:%S %Z%z") + "\n"
             update.message.reply_text(message)
         update.message.reply_text('Que desea hacer?', reply_markup=markup_main)
         return c.MAIN
